@@ -2,11 +2,13 @@ package org.example.backend.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.example.backend.dto.InspirationsRecord;
+import org.example.backend.model.Inspiration;
 import org.example.backend.repository.InspirationsRepo;
 import org.example.backend.service.InspirationsService;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
@@ -17,5 +19,25 @@ public class InspirationsController {
     @PostMapping("/add/inspiration")
     public void createNewInspiration(@RequestBody InspirationsRecord inspiration) {
         inspirationsService.createNewInspiration(inspiration);
+    }
+
+    @GetMapping("/inspirations")
+    public List<Inspiration> getAllInspirations() {
+        return inspirationsService.getAllInspirations();
+    }
+
+    @GetMapping("/inspiration/{id}")
+    public Optional<Inspiration> getInspirationById(@PathVariable String id) {
+        return inspirationsService.getInspirationById(id);
+    }
+
+    @PutMapping("/inspiration/{id}")
+    public Inspiration updateInspiration(@PathVariable String id, @RequestBody InspirationsRecord updatedInspiration) {
+        return inspirationsService.updateInspiration(id, updatedInspiration);
+    }
+
+    @DeleteMapping("/inspiration/{id}")
+    public void deleteInspiration(@PathVariable String id) {
+        inspirationsService.deleteInspiration(id);
     }
 }
