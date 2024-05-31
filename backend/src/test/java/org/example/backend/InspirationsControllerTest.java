@@ -119,4 +119,37 @@ public class InspirationsControllerTest {
 
         assertThat(inspirationsRepo.findById("1")).isNotPresent();
     }
+
+    @Test
+    public void testSearchInspirations() throws Exception {
+        inspirationsRepo.save(new Inspiration(
+                "1", "Beach Sunset", "Beautiful beach sunset", "hero1.jpg",
+                new String[]{"detail1.jpg", "detail2.jpg"}, new String[]{"sunset", "beach"}
+        ));
+        inspirationsRepo.save(new Inspiration(
+                "2", "Mountain Hike", "Hiking up the mountain", "hero2.jpg",
+                new String[]{"detail3.jpg", "detail4.jpg"}, new String[]{"mountain", "hike"}
+        ));
+
+        // Search by name
+        mockMvc.perform(get("/search/inspirations")
+                        .param("searchTerm", "Beach Sunset"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].name", is("Beach Sunset")));
+
+        // Search by description
+        mockMvc.perform(get("/search/inspirations")
+                        .param("searchTerm", "Hiking up the mountain"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].name", is("Mountain Hike")));
+
+        // Search by tag
+        mockMvc.perform(get("/search/inspirations")
+                        .param("searchTerm", "sunset"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].name", is("Beach Sunset")));
+    }
 }
