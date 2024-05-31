@@ -40,4 +40,9 @@ public class InspirationsController {
     public void deleteInspiration(@PathVariable String id) {
         inspirationsService.deleteInspiration(id);
     }
+
+    @GetMapping("/search/inspirations")
+    public List<Inspiration> searchInspirations(@RequestParam String searchTerm) {
+        return inspirationsService.searchInspirations(searchTerm);
+    }
 }

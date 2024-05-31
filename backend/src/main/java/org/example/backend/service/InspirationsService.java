@@ -51,4 +51,8 @@ public class InspirationsService {
     public void deleteInspiration(String id) {
         repo.deleteById(id);
     }
+
+    public List<Inspiration> searchInspirations(String searchTerm) {
+        return repo.search(searchTerm);
+    }
 }
