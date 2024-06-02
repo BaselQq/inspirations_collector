@@ -1,26 +1,56 @@
 {
-  "name": "frontend",
+  "name": "refine-project",
   "version": "0.1.0",
   "private": true,
-  "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
-  },
+  "type": "module",
   "dependencies": {
-    "react": "^18",
-    "react-dom": "^18",
-    "next": "14.2.3"
+    "@refinedev/cli": "^2.16.21",
+    "@refinedev/core": "^4.47.1",
+    "@refinedev/devtools": "^1.1.32",
+    "@refinedev/kbar": "^1.3.6",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0",
+    "react-router-dom": "^6.8.1",
+    "@refinedev/simple-rest": "^5.0.1",
+    "@auth0/auth0-react": "^1.5.0",
+    "axios": "^1.6.2",
+    "@refinedev/react-hook-form": "^4.8.14",
+    "@refinedev/react-router-v6": "^4.5.5",
+    "@refinedev/react-table": "^5.6.6",
+    "@tanstack/react-table": "^8.2.6"
   },
   "devDependencies": {
-    "typescript": "^5",
-    "@types/node": "^20",
-    "@types/react": "^18",
-    "@types/react-dom": "^18",
-    "postcss": "^8",
-    "tailwindcss": "^3.4.1",
-    "eslint": "^8",
-    "eslint-config-next": "14.2.3"
+    "@types/node": "^18.16.2",
+    "@types/react": "^18.0.0",
+    "@types/react-dom": "^18.0.0",
+    "@typescript-eslint/eslint-plugin": "^5.57.1",
+    "@typescript-eslint/parser": "^5.57.1",
+    "@vitejs/plugin-react": "^4.0.0",
+    "eslint": "^8.38.0",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-react-refresh": "^0.3.4",
+    "typescript": "^5.4.2",
+    "vite": "^4.3.1"
+  },
+  "scripts": {
+    "dev": "refine dev",
+    "build": "tsc && refine build",
+    "preview": "refine start",
+    "refine": "refine"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "refine": {
+    "projectId": "mkXIaX-huz0e8-gEI9Yt"
   }
 }
