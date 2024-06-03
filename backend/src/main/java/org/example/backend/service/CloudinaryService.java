@@ -16,7 +16,7 @@ import java.util.Map;
 public class CloudinaryService {
 
     private final Cloudinary cloudinary;
-    private final ImageMetadataRepo imageMetadataRepository;
+    private final ImageMetadataRepo imageMetadataRepo;
 
     public String uploadImage(MultipartFile file) throws IOException {
         if (!isValidFile(file)) {
@@ -37,7 +37,7 @@ public class CloudinaryService {
         metadata.setSize(size);
         metadata.setType(type);
 
-        imageMetadataRepository.save(metadata);
+        imageMetadataRepo.save(metadata);
 
         return url;
     }
@@ -46,7 +46,6 @@ public class CloudinaryService {
         String contentType = file.getContentType();
         long fileSize = file.getSize();
 
-        // Allow only image files of size up to 10MB
         return (contentType != null && contentType.startsWith("image/")) && fileSize <= 10 * 1024 * 1024;
     }
 }

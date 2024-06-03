@@ -6,6 +6,7 @@ import org.example.backend.model.Inspiration;
 import org.example.backend.repository.InspirationsRepo;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -21,9 +22,9 @@ public class InspirationsService {
                 UUID.randomUUID().toString(),
                 newInspiration.name(),
                 newInspiration.description(),
-                newInspiration.heroImage(),
-                newInspiration.detailsImageUrls(),
-                newInspiration.tags()
+                newInspiration.heroImage(),  // This will be set later if needed
+                Arrays.asList(newInspiration.detailsImageUrls()),  // Convert array to list
+                Arrays.asList(newInspiration.tags())  // Convert array to list
         );
         repo.save(inspiration);
         return inspiration;
@@ -41,9 +42,8 @@ public class InspirationsService {
         return repo.findById(id).map(inspiration -> {
             inspiration.setName(updatedInspiration.name());
             inspiration.setDescription(updatedInspiration.description());
-            inspiration.setHeroImage(updatedInspiration.heroImage());
-            inspiration.setDetailImageUrls(updatedInspiration.detailsImageUrls());
-            inspiration.setTags(updatedInspiration.tags());
+            // heroImage and detailImageUrls will be updated separately
+            inspiration.setTags(Arrays.asList(updatedInspiration.tags()));  // Convert array to list
             return repo.save(inspiration);
         }).orElseThrow(() -> new RuntimeException("Inspiration not found"));
     }
@@ -54,5 +54,19 @@ public class InspirationsService {
 
     public List<Inspiration> searchInspirations(String searchTerm) {
         return repo.search(searchTerm);
+    }
+
+    public void updateHeroImage(String inspirationId, String heroImageUrl) {
+        repo.findById(inspirationId).ifPresent(inspiration -> {
+            inspiration.setHeroImage(heroImageUrl);
+            repo.save(inspiration);
+        });
+    }
+
+    public void addDetailImage(String inspirationId, String imageMetadataId) {
+        repo.findById(inspirationId).ifPresent(inspiration -> {
+            inspiration.getDetailImageUrls().add(imageMetadataId);
+            repo.save(inspiration);
+        });
     }
 }
