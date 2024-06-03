@@ -1,7 +1,11 @@
 import React from "react";
+import { Logout } from "./Logout";
 
 export default function Home() {
   return (
-  <div>home hallo hallo</div>
+  <div>
+    <div>home hallo hallo</div>
+    <Logout/>
+  </div>
 );
 }
