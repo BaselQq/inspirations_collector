@@ -6,10 +6,7 @@ import org.example.backend.model.Inspiration;
 import org.example.backend.repository.InspirationsRepo;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -65,7 +62,9 @@ public class InspirationsService {
 
     public void addDetailImage(String inspirationId, String imageMetadataId) {
         repo.findById(inspirationId).ifPresent(inspiration -> {
-            inspiration.getDetailImageUrls().add(imageMetadataId);
+            List<String> detailImageUrls = new ArrayList<>(inspiration.getDetailImageUrls());
+            detailImageUrls.add(imageMetadataId);
+            inspiration.setDetailImageUrls(detailImageUrls);
             repo.save(inspiration);
         });
     }

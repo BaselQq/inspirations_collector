@@ -1,134 +1,156 @@
-package org.example.backend;
+package org.example.backend.service;
 
 import org.example.backend.dto.InspirationsRecord;
 import org.example.backend.model.Inspiration;
 import org.example.backend.repository.InspirationsRepo;
-import org.example.backend.service.InspirationsService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.MockitoAnnotations;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-@ExtendWith(MockitoExtension.class)
 public class InspirationsServiceTest {
 
     @Mock
     private InspirationsRepo repo;
 
     @InjectMocks
-    private InspirationsService service;
-
-    private Inspiration inspiration;
-    private InspirationsRecord record;
+    private InspirationsService inspirationsService;
 
     @BeforeEach
-    void setUp() {
-        record = new InspirationsRecord(
-                "Test Name",
-                "Test Description",
-                "Test Hero Image",
-                new String[]{"Detail Image 1", "Detail Image 2"},
-                new String[]{"Tag1", "Tag2"}
-        );
-
-        inspiration = new Inspiration(
-                UUID.randomUUID().toString(),
-                record.name(),
-                record.description(),
-                record.heroImage(),
-                record.detailsImageUrls(),
-                record.tags()
-        );
+    public void setUp() {
+        MockitoAnnotations.openMocks(this);
     }
 
     @Test
-    void createNewInspiration() {
-        InspirationsRecord record = new InspirationsRecord(
-                "Test Name",
-                "Test Description",
-                "Test Hero Image",
-                new String[]{"Detail Image 1", "Detail Image 2"},
-                new String[]{"Tag1", "Tag2"}
-        );
-
-        Inspiration inspiration = new Inspiration(
-                UUID.randomUUID().toString(),
-                record.name(),
-                record.description(),
-                record.heroImage(),
-                record.detailsImageUrls(),
-                record.tags()
-        );
+    public void testCreateNewInspiration() {
+        InspirationsRecord record = new InspirationsRecord("Test Name", "Test Description", "", new String[]{}, new String[]{"tag1", "tag2"});
+        Inspiration inspiration = new Inspiration(UUID.randomUUID().toString(), "Test Name", "Test Description", "", Arrays.asList(), Arrays.asList("tag1", "tag2"));
 
         when(repo.save(any(Inspiration.class))).thenReturn(inspiration);
 
-        service.createNewInspiration(record);
+        Inspiration result = inspirationsService.createNewInspiration(record);
+
+        assertEquals("Test Name", result.getName());
+        assertEquals("Test Description", result.getDescription());
+        assertTrue(result.getDetailImageUrls().isEmpty());
+        assertEquals(Arrays.asList("tag1", "tag2"), result.getTags());
 
         verify(repo, times(1)).save(any(Inspiration.class));
     }
 
     @Test
-    void updateInspiration() {
-        InspirationsRecord updatedRecord = new InspirationsRecord(
-                "Updated Name",
-                "Updated Description",
-                "Updated Hero Image",
-                new String[]{"Updated Detail Image 1", "Updated Detail Image 2"},
-                new String[]{"Updated Tag1", "Updated Tag2"}
+    public void testGetAllInspirations() {
+        List<Inspiration> inspirations = Arrays.asList(
+                new Inspiration(UUID.randomUUID().toString(), "Name1", "Description1", "", Arrays.asList(), Arrays.asList("tag1")),
+                new Inspiration(UUID.randomUUID().toString(), "Name2", "Description2", "", Arrays.asList(), Arrays.asList("tag2"))
         );
 
-        when(repo.findById(inspiration.getId())).thenReturn(Optional.of(inspiration));
-        when(repo.save(any(Inspiration.class))).thenReturn(inspiration);
+        when(repo.findAll()).thenReturn(inspirations);
 
-        Inspiration updatedInspiration = service.updateInspiration(inspiration.getId(), updatedRecord);
+        List<Inspiration> result = inspirationsService.getAllInspirations();
 
-        verify(repo, times(1)).findById(inspiration.getId());
-        verify(repo, times(1)).save(any(Inspiration.class));
-        assertEquals(updatedRecord.name(), updatedInspiration.getName());
-        assertEquals(updatedRecord.description(), updatedInspiration.getDescription());
-        assertEquals(updatedRecord.heroImage(), updatedInspiration.getHeroImage());
-        assertArrayEquals(updatedRecord.detailsImageUrls(), updatedInspiration.getDetailImageUrls());
-        assertArrayEquals(updatedRecord.tags(), updatedInspiration.getTags());
-    }
-
-    @Test
-    void getAllInspirations() {
-        when(repo.findAll()).thenReturn(Arrays.asList(inspiration));
-
-        List<Inspiration> inspirations = service.getAllInspirations();
+        assertEquals(2, result.size());
+        assertEquals("Name1", result.get(0).getName());
+        assertEquals("Name2", result.get(1).getName());
 
         verify(repo, times(1)).findAll();
-        assertEquals(1, inspirations.size());
-        assertEquals(inspiration.getId(), inspirations.get(0).getId());
     }
 
     @Test
-    void getInspirationById() {
-        when(repo.findById(inspiration.getId())).thenReturn(Optional.of(inspiration));
+    public void testGetInspirationById() {
+        String id = UUID.randomUUID().toString();
+        Inspiration inspiration = new Inspiration(id, "Name", "Description", "", Arrays.asList(), Arrays.asList("tag1"));
 
-        Optional<Inspiration> foundInspiration = service.getInspirationById(inspiration.getId());
+        when(repo.findById(id)).thenReturn(Optional.of(inspiration));
 
-        verify(repo, times(1)).findById(inspiration.getId());
-        assertTrue(foundInspiration.isPresent());
-        assertEquals(inspiration.getId(), foundInspiration.get().getId());
+        Optional<Inspiration> result = inspirationsService.getInspirationById(id);
+
+        assertTrue(result.isPresent());
+        assertEquals("Name", result.get().getName());
+
+        verify(repo, times(1)).findById(id);
     }
 
     @Test
-    void deleteInspiration() {
-        doNothing().when(repo).deleteById(inspiration.getId());
+    public void testUpdateInspiration() {
+        String id = UUID.randomUUID().toString();
+        InspirationsRecord record = new InspirationsRecord("Updated Name", "Updated Description", "", new String[]{}, new String[]{"tag1", "tag2"});
+        Inspiration inspiration = new Inspiration(id, "Original Name", "Original Description", "", Arrays.asList(), Arrays.asList("tag1"));
 
-        service.deleteInspiration(inspiration.getId());
+        when(repo.findById(id)).thenReturn(Optional.of(inspiration));
+        when(repo.save(any(Inspiration.class))).thenReturn(inspiration);
 
-        verify(repo, times(1)).deleteById(inspiration.getId());
+        Inspiration result = inspirationsService.updateInspiration(id, record);
+
+        assertEquals("Updated Name", result.getName());
+        assertEquals("Updated Description", result.getDescription());
+
+        verify(repo, times(1)).findById(id);
+        verify(repo, times(1)).save(any(Inspiration.class));
+    }
+
+    @Test
+    public void testDeleteInspiration() {
+        String id = UUID.randomUUID().toString();
+        doNothing().when(repo).deleteById(id);
+
+        inspirationsService.deleteInspiration(id);
+
+        verify(repo, times(1)).deleteById(id);
+    }
+
+    @Test
+    public void testSearchInspirations() {
+        List<Inspiration> inspirations = Arrays.asList(
+                new Inspiration(UUID.randomUUID().toString(), "Name1", "Description1", "", Arrays.asList(), Arrays.asList("tag1")),
+                new Inspiration(UUID.randomUUID().toString(), "Name2", "Description2", "", Arrays.asList(), Arrays.asList("tag2"))
+        );
+
+        when(repo.search("searchTerm")).thenReturn(inspirations);
+
+        List<Inspiration> result = inspirationsService.searchInspirations("searchTerm");
+
+        assertEquals(2, result.size());
+        assertEquals("Name1", result.get(0).getName());
+        assertEquals("Name2", result.get(1).getName());
+
+        verify(repo, times(1)).search("searchTerm");
+    }
+
+    @Test
+    public void testUpdateHeroImage() {
+        String id = UUID.randomUUID().toString();
+        Inspiration inspiration = new Inspiration(id, "Name", "Description", "", Arrays.asList(), Arrays.asList("tag1"));
+
+        when(repo.findById(id)).thenReturn(Optional.of(inspiration));
+
+        inspirationsService.updateHeroImage(id, "newHeroImage");
+
+        assertEquals("newHeroImage", inspiration.getHeroImage());
+        verify(repo, times(1)).findById(id);
+        verify(repo, times(1)).save(inspiration);
+    }
+
+    @Test
+    public void testAddDetailImage() {
+        String id = UUID.randomUUID().toString();
+        Inspiration inspiration = new Inspiration(id, "Name", "Description", "", Arrays.asList(), Arrays.asList("tag1"));
+
+        when(repo.findById(id)).thenReturn(Optional.of(inspiration));
+
+        inspirationsService.addDetailImage(id, "newDetailImage");
+
+        assertTrue(inspiration.getDetailImageUrls().contains("newDetailImage"));
+        verify(repo, times(1)).findById(id);
+        verify(repo, times(1)).save(inspiration);
     }
 }
