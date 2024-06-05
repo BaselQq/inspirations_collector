@@ -1,8 +1,10 @@
 import { useAuth0 } from "@auth0/auth0-react";
 
 import { BrowserRouter, Outlet, Route, Routes } from "react-router-dom";
-import { Login } from "./pages/login";
-import Home from "./pages/home";
+import { Login } from "./pages/Login.tsx";
+import Home from "./pages/Home.tsx";
+import DetailsPage from "./pages/DetailsPage.tsx";
+import AddImagePage from "./pages/AddImagePage.tsx";
 import Footer from "./components/Footer.tsx";
 import Header from "./components/Header.tsx";
 
@@ -78,6 +80,8 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         {/* TODO: add react error boundary to catch fetching error or 404 error from rest-api  <Route path="*" element={<ErrorComponent />} /> */}
+        <Route path="/details/:id" element={<DetailsPage />} />
+        <Route path="/add" element={<AddImagePage />} />
       </Routes>
       <Footer />
     </BrowserRouter>
