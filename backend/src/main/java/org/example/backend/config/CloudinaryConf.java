@@ -17,7 +17,7 @@ public class CloudinaryConf {
     @Value("${CLOUDINARY_API_KEY:default_api_key}")
     private String apiKey;
 
-    @Value("${CLOUDINARY_API_SECRET:default_api_secret}")
+    @Value("${CLOUDINARY_API_SEC:default_api_sec}")
     private String apiSecret;
 
     @Bean
