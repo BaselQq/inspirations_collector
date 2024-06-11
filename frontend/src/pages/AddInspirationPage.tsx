@@ -1,50 +1,26 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Container, TextInput, Textarea, Button, Group, Badge, FileInput } from '@mantine/core';
-import axios from 'axios';
+import { useForm } from "../Hooks/useForm.ts";
+import { useInspiration } from "../Hooks/useInspiration.ts";
 
-const uploadImage = async (file: File, inspirationId: string, type: string): Promise<string> => {
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('inspirationId', inspirationId);
-    formData.append('type', type);
-
-    const response = await axios.post('http://localhost:8080/upload/image', formData, {
-        headers: {
-            'Content-Type': 'multipart/form-data',
-        },
-    });
-
-    return response.data;
-};
-
-const createInspiration = async (inspirationData: any): Promise<string> => {
-    const response = await axios.post('http://localhost:8080/add/inspiration', inspirationData);
-    return response.data.id;
-};
-
-const updateInspiration = async (inspirationId: string, updatedInspirationData: any): Promise<void> => {
-    await axios.put(`http://localhost:8080/inspiration/${inspirationId}`, updatedInspirationData);
-};
 
 const AddInspirationPage: React.FC = () => {
     const navigate = useNavigate();
-    const [name, setName] = useState('');
-    const [tags, setTags] = useState('');
-    const [description, setDescription] = useState('');
+    const [formValues, handleFormChange] = useForm({ name: '', tags: '', description: '' });
     const [heroImage, setHeroImage] = useState<File | null>(null);
     const [detailImages, setDetailImages] = useState<File[]>([]);
     const [error, setError] = useState<string | null>(null);
+    const { createInspiration, uploadImage, updateInspiration } = useInspiration();
 
     const handleSubmit = async () => {
         try {
             // Step 1: Add inspiration
             const inspirationData = {
-                name,
-                description,
+                ...formValues,
                 heroImage: '', // Placeholder
                 detailsImageUrls: [], // Placeholder
-                tags: tags.split(',').map(tag => tag.trim()),
+                tags: formValues.tags.split(',').map(tag => tag.trim()),
             };
 
             const inspirationId = await createInspiration(inspirationData);
@@ -71,9 +47,9 @@ const AddInspirationPage: React.FC = () => {
             await updateInspiration(inspirationId, updatedInspirationData);
 
             // Reset form and navigate to another page if necessary
-            setName('');
-            setTags('');
-            setDescription('');
+            handleFormChange('name', '');
+            handleFormChange('tags', '');
+            handleFormChange('description', '');
             setHeroImage(null);
             setDetailImages([]);
             navigate('/');
@@ -87,16 +63,16 @@ const AddInspirationPage: React.FC = () => {
         <Container>
             <TextInput
                 label="Image Title"
-                value={name}
-                onChange={(event) => setName(event.currentTarget.value)}
+                value={formValues.name}
+                onChange={(event) => handleFormChange('name', event.currentTarget.value)}
             />
             <TextInput
                 label="Tags"
-                value={tags}
-                onChange={(event) => setTags(event.currentTarget.value)}
+                value={formValues.tags}
+                onChange={(event) => handleFormChange('tags', event.currentTarget.value)}
             />
             <Group>
-                {tags.split(',').map((tag) => (
+                {formValues.tags.split(',').map((tag) => (
                     <Badge key={tag} color="pink" variant="light">
                         {tag}
                     </Badge>
@@ -104,8 +80,8 @@ const AddInspirationPage: React.FC = () => {
             </Group>
             <Textarea
                 label="Description"
-                value={description}
-                onChange={(event) => setDescription(event.currentTarget.value)}
+                value={formValues.description}
+                onChange={(event) => handleFormChange('description', event.currentTarget.value)}
             />
             <FileInput label="Hero Image" onChange={setHeroImage} />
             <FileInput
