@@ -5,6 +5,7 @@ import org.example.backend.dto.InspirationsRecord;
 import org.example.backend.model.Inspiration;
 import org.example.backend.repository.InspirationsRepo;
 import org.example.backend.service.InspirationsService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,8 +18,9 @@ public class InspirationsController {
     private final InspirationsService inspirationsService;
 
     @PostMapping("/add/inspiration")
-    public void createNewInspiration(@RequestBody InspirationsRecord inspiration) {
-        inspirationsService.createNewInspiration(inspiration);
+    public ResponseEntity<Inspiration> createNewInspiration(@RequestBody InspirationsRecord inspiration) {
+        Inspiration createdInspiration = inspirationsService.createNewInspiration(inspiration);
+        return ResponseEntity.ok(createdInspiration);
     }
 
     @GetMapping("/inspirations")

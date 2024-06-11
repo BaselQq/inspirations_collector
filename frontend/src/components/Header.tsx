@@ -25,7 +25,7 @@ const Header: React.FC = () => {
                     <Title order={2}>Home</Title>
                 </Link>
                 <Group>
-                    <Link to="/add">
+                    <Link to="/add-inspiration">
                         <Button variant="default">add new inspiration</Button>
                     </Link>
                     <Link to="/signin">

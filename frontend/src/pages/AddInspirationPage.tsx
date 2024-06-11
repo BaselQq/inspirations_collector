@@ -1,72 +1,82 @@
+// AddInspirationPage.tsx
+
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Container, TextInput, Textarea, Button, Group, Badge, FileInput } from '@mantine/core';
 import axios from 'axios';
 
-const AddImagePage: React.FC = () => {
+const AddInspirationPage: React.FC = () => {
+    const navigate = useNavigate();
     const [name, setName] = useState('');
     const [tags, setTags] = useState('');
     const [description, setDescription] = useState('');
     const [heroImage, setHeroImage] = useState<File | null>(null);
     const [detailImages, setDetailImages] = useState<File[]>([]);
+    const [error, setError] = useState<string | null>(null);
 
     const handleSubmit = async () => {
         try {
-            // Upload hero image
+            // Step 1: Add inspiration
+            const inspirationData = {
+                name,
+                description,
+                heroImage: '', // Placeholder
+                detailsImageUrls: [], // Placeholder
+                tags: tags.split(',').map(tag => tag.trim()),
+            };
+
+            const addInspirationResponse = await axios.post('http://localhost:8080/add/inspiration', inspirationData);
+            const inspirationId = addInspirationResponse.data.id;
+
+            // Step 2: Upload hero image
             let heroImageUrl = '';
             if (heroImage) {
                 const heroFormData = new FormData();
-                heroFormData.append('file', heroImage); // Ensure the key name is 'file'
-                console.log('Hero Image FormData:', ...heroFormData); // Debugging
+                heroFormData.append('file', heroImage);
+                heroFormData.append('inspirationId', inspirationId);
+                heroFormData.append('type', 'hero');
                 const heroImageResponse = await axios.post('http://localhost:8080/upload/image', heroFormData, {
                     headers: {
                         'Content-Type': 'multipart/form-data',
                     },
                 });
-                heroImageUrl = heroImageResponse.data.url; // Adjust according to your response
-                console.log('Hero Image URL:', heroImageUrl); // Debugging
+                heroImageUrl = heroImageResponse.data;
             }
 
-            // Upload detail images
+            // Step 3: Upload detail images
             const detailImageUrls = [];
             for (const file of detailImages) {
                 const detailFormData = new FormData();
-                detailFormData.append('file', file); // Ensure the key name is 'file'
-                console.log('Detail Image FormData:', ...detailFormData); // Debugging
+                detailFormData.append('file', file);
+                detailFormData.append('inspirationId', inspirationId);
+                detailFormData.append('type', 'detail');
                 const detailImageResponse = await axios.post('http://localhost:8080/upload/image', detailFormData, {
                     headers: {
                         'Content-Type': 'multipart/form-data',
                     },
                 });
-                detailImageUrls.push(detailImageResponse.data.url); // Adjust according to your response
-                console.log('Detail Image URL:', detailImageResponse.data.url); // Debugging
+                detailImageUrls.push(detailImageResponse.data);
             }
 
-            // Prepare data for adding inspiration
-            const inspirationData = {
-                name,
-                description,
+            // Step 4: Update inspiration with image URLs
+            const updatedInspirationData = {
+                ...inspirationData,
                 heroImage: heroImageUrl,
                 detailsImageUrls: detailImageUrls,
-                tags: tags.split(',').map(tag => tag.trim()),
             };
 
-            // Add inspiration
-            console.log('Inspiration Data:', inspirationData); // Debugging
-            const addInspirationResponse = await axios.post('http://localhost:8080/add/inspiration', inspirationData);
-            const inspirationId = addInspirationResponse.data.id; // Adjust according to your response
-            console.log('Inspiration ID:', inspirationId); // Debugging
+            await axios.put(`http://localhost:8080/inspiration/${inspirationId}`, updatedInspirationData);
 
-            // Update inspiration with image URLs (if necessary)
-            await axios.put(`http://localhost:8080/inspiration/${inspirationId}`, inspirationData);
-
-            // Reset form after submission
+            // Reset form and navigate to another page if necessary
             setName('');
             setTags('');
             setDescription('');
             setHeroImage(null);
             setDetailImages([]);
+            navigate('/');
         } catch (error) {
-            console.error('Error uploading images or adding inspiration:', error.response?.data || error.message);
+            console.error('Error adding inspiration:', error.response?.data || error.message);
+            setError('Failed to add inspiration. Please try again.');
         }
     };
 
@@ -100,9 +110,10 @@ const AddImagePage: React.FC = () => {
                 multiple
                 onChange={(files) => setDetailImages(Array.from(files))}
             />
-            <Button onClick={handleSubmit}>Add</Button>
+            <Button onClick={handleSubmit}>Add Inspiration</Button>
+            {error && <p style={{ color: 'red' }}>{error}</p>}
         </Container>
     );
 };
 
-export default AddImagePage;
+export default AddInspirationPage;

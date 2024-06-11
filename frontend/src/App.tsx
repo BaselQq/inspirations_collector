@@ -7,6 +7,7 @@ import DetailsPage from "./pages/DetailsPage.tsx";
 import AddImagePage from "./pages/AddImagePage.tsx";
 import Footer from "./components/Footer.tsx";
 import Header from "./components/Header.tsx";
+import AddInspirationPage from "./pages/AddInspirationPage.tsx";
 
 function App() {
   const { isLoading, user, logout, getIdTokenClaims } = useAuth0();
@@ -81,7 +82,8 @@ function App() {
         <Route path="/login" element={<Login />} />
         {/* TODO: add react error boundary to catch fetching error or 404 error from rest-api  <Route path="*" element={<ErrorComponent />} /> */}
         <Route path="/details/:id" element={<DetailsPage />} />
-        <Route path="/add" element={<AddImagePage />} />
+        <Route path="/add-inspiration" element={<AddInspirationPage />} />
+
       </Routes>
       <Footer />
     </BrowserRouter>
