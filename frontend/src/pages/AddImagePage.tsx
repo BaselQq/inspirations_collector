@@ -10,21 +10,49 @@ const AddImagePage: React.FC = () => {
     const [detailImages, setDetailImages] = useState<File[]>([]);
 
     const handleSubmit = async () => {
-        const formData = new FormData();
-        formData.append('name', name);
-        formData.append('tags', tags);
-        formData.append('description', description);
-
-        if (heroImage) {
-            formData.append('heroImage', heroImage);
-        }
-
-        detailImages.forEach((file, index) => {
-            formData.append(`detailImages[${index}]`, file);
-        });
-
         try {
-            await axios.post('http://localhost:8080/upload/image', formData);
+            // Upload hero image
+            let heroImageUrl = '';
+            if (heroImage) {
+                const heroFormData = new FormData();
+                heroFormData.append('file', heroImage);
+                const heroImageResponse = await axios.post('http://localhost:8080/upload/image', heroFormData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                    },
+                    withCredentials: true,
+                });
+                heroImageUrl = heroImageResponse.data.url;
+            }
+
+            // Upload detail images
+            const detailImageUrls = [];
+            for (const file of detailImages) {
+                const detailFormData = new FormData();
+                detailFormData.append('file', file);
+                const detailImageResponse = await axios.post('http://localhost:8080/upload/image', detailFormData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                    },
+                    withCredentials: true,
+                });
+                detailImageUrls.push(detailImageResponse.data.url);
+            }
+
+            // Prepare data for adding inspiration
+            const inspirationData = {
+                name,
+                description,
+                heroImage: heroImageUrl,
+                detailsImageUrls: detailImageUrls,
+                tags: tags.split(',').map(tag => tag.trim()),
+            };
+
+            // Add inspiration
+            const addInspirationResponse = await axios.post('http://localhost:8080/add/inspiration', inspirationData, {
+                withCredentials: true,
+            });
+
             // Reset form after submission
             setName('');
             setTags('');
@@ -32,7 +60,7 @@ const AddImagePage: React.FC = () => {
             setHeroImage(null);
             setDetailImages([]);
         } catch (error) {
-            console.error('Error uploading images:', error);
+            console.error('Error uploading images or adding inspiration:', error.response?.data || error.message);
         }
     };
 
