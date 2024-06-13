@@ -1,6 +1,5 @@
 package org.example.backend.config;
 
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -12,13 +11,11 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 
-import static org.springframework.security.config.Customizer.withDefaults;
-
 @Configuration
 @EnableWebSecurity
 public class SecurityConf {
 
-    @Value("${app.url}")
+    @Value("${APP_URL:http://localhost:5173}")
     private String appUrl;
 
     @Bean
@@ -29,6 +26,8 @@ public class SecurityConf {
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/api/users/me").authenticated()
                         .requestMatchers(HttpMethod.POST, "/add/inspiration").authenticated()
+//                        .requestMatchers(HttpMethod.PUT, "/inspiration/{id}").authenticated()
+//                        .requestMatchers(HttpMethod.DELETE, "/inspiration/{id}").authenticated()
                         .anyRequest().permitAll())
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.ALWAYS))

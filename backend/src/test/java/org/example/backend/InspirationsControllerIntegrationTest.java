@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Arrays;
@@ -35,12 +37,14 @@ public class InspirationsControllerIntegrationTest {
     }
 
     @Test
+    @WithMockUser(username = "user", roles = {"USER"})
     public void testCreateNewInspiration() throws Exception {
-        InspirationsRecord record = new InspirationsRecord("Test Name", "Test Description", "", new String[]{}, new String[]{"tag1", "tag2"});
+        String content = "{ \"name\": \"Test Name\", \"description\": \"Test Description\", \"heroImage\": \"\", \"detailsImageUrls\": [], \"tags\": [\"tag1\", \"tag2\"] }";
 
         mockMvc.perform(post("/add/inspiration")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{ \"name\": \"Test Name\", \"description\": \"Test Description\", \"heroImage\": \"\", \"detailsImageUrls\": [], \"tags\": [\"tag1\", \"tag2\"] }"))
+                        .content(content)
+                        .with(SecurityMockMvcRequestPostProcessors.csrf()))
                 .andExpect(status().isOk());
 
         assertThat(inspirationsRepo.findAll()).hasSize(1);

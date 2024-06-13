@@ -23,16 +23,6 @@ public class InspirationsController {
         return ResponseEntity.ok(createdInspiration);
     }
 
-    @GetMapping("/inspirations")
-    public List<Inspiration> getAllInspirations() {
-        return inspirationsService.getAllInspirations();
-    }
-
-    @GetMapping("/inspiration/{id}")
-    public Optional<Inspiration> getInspirationById(@PathVariable String id) {
-        return inspirationsService.getInspirationById(id);
-    }
-
     @PutMapping("/inspiration/{id}")
     public Inspiration updateInspiration(@PathVariable String id, @RequestBody InspirationsRecord updatedInspiration) {
         return inspirationsService.updateInspiration(id, updatedInspiration);
@@ -41,6 +31,16 @@ public class InspirationsController {
     @DeleteMapping("/inspiration/{id}")
     public void deleteInspiration(@PathVariable String id) {
         inspirationsService.deleteInspiration(id);
+    }
+
+    @GetMapping("/inspirations")
+    public List<Inspiration> getAllInspirations() {
+        return inspirationsService.getAllInspirations();
+    }
+
+    @GetMapping("/inspiration/{id}")
+    public Optional<Inspiration> getInspirationById(@PathVariable String id) {
+        return inspirationsService.getInspirationById(id);
     }
 
     @GetMapping("/search/inspirations")
