@@ -26,8 +26,8 @@ public class SecurityConf {
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/api/users/me").authenticated()
                         .requestMatchers(HttpMethod.POST, "/add/inspiration").authenticated()
-//                        .requestMatchers(HttpMethod.PUT, "/inspiration/{id}").authenticated()
-//                        .requestMatchers(HttpMethod.DELETE, "/inspiration/{id}").authenticated()
+                        .requestMatchers(HttpMethod.PUT, "/inspiration/{id}").authenticated()
+                        .requestMatchers(HttpMethod.DELETE, "/inspiration/{id}").authenticated()
                         .anyRequest().permitAll())
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.ALWAYS))

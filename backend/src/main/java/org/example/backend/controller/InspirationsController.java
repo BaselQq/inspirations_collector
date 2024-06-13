@@ -22,15 +22,16 @@ public class InspirationsController {
         Inspiration createdInspiration = inspirationsService.createNewInspiration(inspiration);
         return ResponseEntity.ok(createdInspiration);
     }
-
     @PutMapping("/inspiration/{id}")
-    public Inspiration updateInspiration(@PathVariable String id, @RequestBody InspirationsRecord updatedInspiration) {
-        return inspirationsService.updateInspiration(id, updatedInspiration);
+    public ResponseEntity<Inspiration> updateInspiration(@PathVariable String id, @RequestBody InspirationsRecord updatedInspiration) {
+        Inspiration updated = inspirationsService.updateInspiration(id, updatedInspiration);
+        return ResponseEntity.ok(updated);
     }
 
     @DeleteMapping("/inspiration/{id}")
-    public void deleteInspiration(@PathVariable String id) {
+    public ResponseEntity<Void> deleteInspiration(@PathVariable String id) {
         inspirationsService.deleteInspiration(id);
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/inspirations")

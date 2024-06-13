@@ -50,6 +50,36 @@ public class InspirationsControllerIntegrationTest {
         assertThat(inspirationsRepo.findAll()).hasSize(1);
         assertThat(inspirationsRepo.findAll().get(0).getName()).isEqualTo("Test Name");
     }
+    @Test
+    @WithMockUser(username = "user")
+    public void testUpdateInspiration() throws Exception {
+        String id = UUID.randomUUID().toString();
+        Inspiration inspiration = new Inspiration(id, "Original Name", "Original Description", "", Arrays.asList(), Arrays.asList("tag1"));
+        inspirationsRepo.save(inspiration);
+
+        mockMvc.perform(put("/inspiration/" + id)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{ \"name\": \"Updated Name\", \"description\": \"Updated Description\", \"heroImage\": \"\", \"detailsImageUrls\": [], \"tags\": [\"tag1\", \"tag2\"] }"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value("Updated Name"));
+
+        Optional<Inspiration> updatedInspiration = inspirationsRepo.findById(id);
+        assertThat(updatedInspiration).isPresent();
+        assertThat(updatedInspiration.get().getName()).isEqualTo("Updated Name");
+    }
+
+    @Test
+    @WithMockUser(username = "user")
+    public void testDeleteInspiration() throws Exception {
+        String id = UUID.randomUUID().toString();
+        Inspiration inspiration = new Inspiration(id, "Test Name", "Test Description", "", Arrays.asList(), Arrays.asList("tag1", "tag2"));
+        inspirationsRepo.save(inspiration);
+
+        mockMvc.perform(delete("/inspiration/" + id))
+                .andExpect(status().isOk());
+
+        assertThat(inspirationsRepo.findById(id)).isNotPresent();
+    }
 
     @Test
     public void testGetAllInspirations() throws Exception {
@@ -73,35 +103,6 @@ public class InspirationsControllerIntegrationTest {
         mockMvc.perform(get("/inspiration/" + id))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("Name"));
-    }
-
-    @Test
-    public void testUpdateInspiration() throws Exception {
-        String id = UUID.randomUUID().toString();
-        Inspiration inspiration = new Inspiration(id, "Original Name", "Original Description", "", Arrays.asList(), Arrays.asList("tag1"));
-        inspirationsRepo.save(inspiration);
-
-        mockMvc.perform(put("/inspiration/" + id)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{ \"name\": \"Updated Name\", \"description\": \"Updated Description\", \"heroImage\": \"\", \"detailsImageUrls\": [], \"tags\": [\"tag1\", \"tag2\"] }"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.name").value("Updated Name"));
-
-        Optional<Inspiration> updatedInspiration = inspirationsRepo.findById(id);
-        assertThat(updatedInspiration).isPresent();
-        assertThat(updatedInspiration.get().getName()).isEqualTo("Updated Name");
-    }
-
-    @Test
-    public void testDeleteInspiration() throws Exception {
-        String id = UUID.randomUUID().toString();
-        Inspiration inspiration = new Inspiration(id, "Test Name", "Test Description", "", Arrays.asList(), Arrays.asList("tag1", "tag2"));
-        inspirationsRepo.save(inspiration);
-
-        mockMvc.perform(delete("/inspiration/" + id))
-                .andExpect(status().isOk());
-
-        assertThat(inspirationsRepo.findById(id)).isNotPresent();
     }
 
     @Test
