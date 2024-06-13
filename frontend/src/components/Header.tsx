@@ -12,7 +12,7 @@ const Header: React.FC = () => {
     }
 
     function getUser() {
-        axios.get("http://localhost:8080/api/users/me")
+        axios.get("/api/users/me")
             .then(response => {
                 console.log(response.data)
             })

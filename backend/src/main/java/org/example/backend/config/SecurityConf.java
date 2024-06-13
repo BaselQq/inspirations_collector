@@ -1,6 +1,7 @@
 package org.example.backend.config;
 
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -17,17 +18,21 @@ import static org.springframework.security.config.Customizer.withDefaults;
 @EnableWebSecurity
 public class SecurityConf {
 
+    @Value("${app.url}")
+    private String appUrl;
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorize -> authorize
-//                        .requestMatchers(HttpMethod.DELETE, "/api/*").authenticated()
+                        .requestMatchers("/api/users/me").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/add/inspiration").authenticated()
                         .anyRequest().permitAll())
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.ALWAYS))
-                .oauth2Login(withDefaults());
+                .oauth2Login(c -> c.defaultSuccessUrl(appUrl));
 
                 return http.build();
     }
