@@ -15,30 +15,28 @@ const AddImagePage: React.FC = () => {
             let heroImageUrl = '';
             if (heroImage) {
                 const heroFormData = new FormData();
-                heroFormData.append('file', heroImage); // Ensure the key name is 'file'
-                console.log('Hero Image FormData:', ...heroFormData); // Debugging
+                heroFormData.append('file', heroImage);
                 const heroImageResponse = await axios.post('http://localhost:8080/upload/image', heroFormData, {
                     headers: {
                         'Content-Type': 'multipart/form-data',
                     },
+                    withCredentials: true,
                 });
-                heroImageUrl = heroImageResponse.data.url; // Adjust according to your response
-                console.log('Hero Image URL:', heroImageUrl); // Debugging
+                heroImageUrl = heroImageResponse.data.url;
             }
 
             // Upload detail images
             const detailImageUrls = [];
             for (const file of detailImages) {
                 const detailFormData = new FormData();
-                detailFormData.append('file', file); // Ensure the key name is 'file'
-                console.log('Detail Image FormData:', ...detailFormData); // Debugging
+                detailFormData.append('file', file);
                 const detailImageResponse = await axios.post('http://localhost:8080/upload/image', detailFormData, {
                     headers: {
                         'Content-Type': 'multipart/form-data',
                     },
+                    withCredentials: true,
                 });
-                detailImageUrls.push(detailImageResponse.data.url); // Adjust according to your response
-                console.log('Detail Image URL:', detailImageResponse.data.url); // Debugging
+                detailImageUrls.push(detailImageResponse.data.url);
             }
 
             // Prepare data for adding inspiration
@@ -51,13 +49,9 @@ const AddImagePage: React.FC = () => {
             };
 
             // Add inspiration
-            console.log('Inspiration Data:', inspirationData); // Debugging
-            const addInspirationResponse = await axios.post('http://localhost:8080/add/inspiration', inspirationData);
-            const inspirationId = addInspirationResponse.data.id; // Adjust according to your response
-            console.log('Inspiration ID:', inspirationId); // Debugging
-
-            // Update inspiration with image URLs (if necessary)
-            await axios.put(`http://localhost:8080/inspiration/${inspirationId}`, inspirationData);
+            const addInspirationResponse = await axios.post('http://localhost:8080/add/inspiration', inspirationData, {
+                withCredentials: true,
+            });
 
             // Reset form after submission
             setName('');

@@ -3,10 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import { Container, TextInput, Textarea, Button, Group, Badge, FileInput } from '@mantine/core';
 import { useForm } from "../Hooks/useForm.ts";
 import { useInspiration } from "../Hooks/useInspiration.ts";
-
+import { useAuth } from "../Hooks/useAuth.ts";
 
 const AddInspirationPage: React.FC = () => {
     const navigate = useNavigate();
+    const user = useAuth();
     const [formValues, handleFormChange] = useForm({ name: '', tags: '', description: '' });
     const [heroImage, setHeroImage] = useState<File | null>(null);
     const [detailImages, setDetailImages] = useState<File[]>([]);
@@ -14,30 +15,31 @@ const AddInspirationPage: React.FC = () => {
     const { createInspiration, uploadImage, updateInspiration } = useInspiration();
 
     const handleSubmit = async () => {
+        if (!user) {
+            setError('You must be logged in to add an inspiration.');
+            return;
+        }
+
         try {
-            // Step 1: Add inspiration
             const inspirationData = {
                 ...formValues,
-                heroImage: '', // Placeholder
-                detailsImageUrls: [], // Placeholder
+                heroImage: '',
+                detailsImageUrls: [],
                 tags: formValues.tags.split(',').map(tag => tag.trim()),
             };
 
             const inspirationId = await createInspiration(inspirationData);
-            console.log('Inspiration ID:', inspirationId); // Log the inspiration ID
+            console.log('Inspiration ID:', inspirationId);
 
-            // Step 2: Upload hero image
             let heroImageUrl = '';
             if (heroImage) {
                 heroImageUrl = await uploadImage(heroImage, inspirationId, 'hero');
-                console.log('Hero Image URL:', heroImageUrl); // Log the hero image URL
+                console.log('Hero Image URL:', heroImageUrl);
             }
 
-            // Step 3: Upload detail images
             const detailImageUrls = await Promise.all(detailImages.map(file => uploadImage(file, inspirationId, 'detail')));
-            detailImageUrls.forEach(url => console.log('Detail Image URL:', url)); // Log each detail image URL
+            detailImageUrls.forEach(url => console.log('Detail Image URL:', url));
 
-            // Step 4: Update inspiration with image URLs
             const updatedInspirationData = {
                 ...inspirationData,
                 heroImage: heroImageUrl,
@@ -46,7 +48,6 @@ const AddInspirationPage: React.FC = () => {
 
             await updateInspiration(inspirationId, updatedInspirationData);
 
-            // Reset form and navigate to another page if necessary
             handleFormChange('name', '');
             handleFormChange('tags', '');
             handleFormChange('description', '');
