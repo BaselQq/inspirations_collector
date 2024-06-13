@@ -15,7 +15,7 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 public class SecurityConf {
 
-    @Value("${APP_URL:http://localhost:5173}")
+    @Value("${APP_URL}")
     private String appUrl;
 
     @Bean
